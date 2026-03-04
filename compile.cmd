@@ -1,0 +1,1 @@
+pio run -t upload -e pico --upload-port COM3
