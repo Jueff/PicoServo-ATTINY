@@ -82,7 +82,7 @@ void setup()
 {
   Serial.begin(115200);
   // only enable for debugging purpose to see trace output of boot code
-  while (!Serial) {}
+  // while (!Serial) {}
   Serial.println(bootMessage);
 
  
