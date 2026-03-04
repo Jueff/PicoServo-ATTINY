@@ -92,7 +92,7 @@ ServoConfigurator::ServoConfigurator(FlashStorage* pFlashStorage, uint8_t storag
     this->pServo[i] = new StatefulServoController(pins[i], MIN_SERVO, MAX_SERVO, CNG_POS_SLOW);
 
     // read the min and max position for the servo from flash storage, if not valid use default values
-    if (pFlashStorage->getBlock(fbs, FLASHBLOCK_TYPE_MINMAX + storageOffset + i))
+    if (pFlashStorage->getBlock(fbs, FLASHBLOCK_TYPE_MINMAX, storageOffset + i))
     {
       Serial.printf("Flash limit storage for servo %d/%d is valid\r\n", storageOffset, i);
       lowerLimit = fbs.getWord(0);
@@ -107,7 +107,7 @@ ServoConfigurator::ServoConfigurator(FlashStorage* pFlashStorage, uint8_t storag
     }
 
     // read the speed for the servo from flash storage, if not valid use default value
-    if (pFlashStorage->getBlock(fbs, FLASHBLOCK_TYPE_SPEED + storageOffset + i))
+    if (pFlashStorage->getBlock(fbs, FLASHBLOCK_TYPE_SPEED, storageOffset + i))
     {
       speed = fbs.getWord(0);
       Serial.printf("Flash speed storage for servo %d/%d is valid, speed=%d\r\n", storageOffset, i, speed);
@@ -120,7 +120,7 @@ ServoConfigurator::ServoConfigurator(FlashStorage* pFlashStorage, uint8_t storag
     }
 
     // read the position for the servo from flash storage, if not valid use default value
-    if (pFlashStorage->getBlock(fbs, FLASHBLOCK_TYPE_POSITION + storageOffset + i))
+    if (pFlashStorage->getBlock(fbs, FLASHBLOCK_TYPE_POSITION, storageOffset + i))
     {
       pFlashStorage->dumpMemory(fbs.getAddress(), 8); 
       //position = (fbs.getData(0)<<8) + fbs.getData(1);
@@ -137,8 +137,9 @@ ServoConfigurator::ServoConfigurator(FlashStorage* pFlashStorage, uint8_t storag
     pServo[i]->setLowerLimit(lowerLimit);
     pServo[i]->setUpperLimit(upperLimit);
     pServo[i]->setSpeed(speed);
-    pServo[i]->setTarget(position, true);
-    Serial.printf("server %d/%d position %d lowerLimit %d upperLimit %d speed %d\n", storageOffset, i, 
+    pServo[i]->setCurrent(position);  // todo check how to correclty init without setting the PWM
+    //pServo[i]->setTarget(position, false);
+    Serial.printf("servo %d/%d position %d lowerLimit %d upperLimit %d speed %d\n", storageOffset, i,
       pServo[i]->getTarget(), pServo[i]->getLowerLimit(), pServo[i]->getUpperLimit(), pServo[i]->getSpeed());
   }
 }
@@ -464,7 +465,7 @@ void ServoConfigurator::readMinMaxButton(uint8_t ledValue)
     if (pServo[selectedServo]->getTarget() != current)
     {
       Serial.printf("Value before %d, now %d\n", pServo[selectedServo]->getTarget(), current);
-      pServo[selectedServo]->setTarget(current, false); // Move the servo
+      pServo[selectedServo]->setTarget(current, false); // Move the servo  : todo check to move with full speed?
     }
 
     // 0/100=Nothing, ret 0; 1-95=Dec Val, ret -1; 105-200=Inc Val, ret 1, 205=Button1, ret 2,

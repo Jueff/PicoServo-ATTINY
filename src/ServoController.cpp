@@ -32,9 +32,22 @@ ServoController::ServoController(uint8_t pin, uint16_t min, uint16_t max, uint16
   next = NULL;
 }
 
+void ServoController::setCurrent(uint16_t value)
+{
+  if (value < min) current = min;
+  else if (value > max) current = max;
+  else current = value;
+  target = current;
+}
+
 bool ServoController::setTarget(uint16_t value, bool checkLimits)
 {
   if (value<1) return false;            // MLL sends 0 for pattern after restart - ignore that values(workaround until store_status for pattern works with MLL)
+  if (value == current)
+  {
+    target = current;
+    return true;
+  }
   if (disabled)         // re-enable PWM
   {
     Serial.printf("enable servo for pin %d\r\n", pin);

@@ -7,11 +7,12 @@ class ServoController
 public:
     ServoController(uint8_t pin, uint16_t min, uint16_t max, uint16_t speed);
 
-    bool setTarget(uint16_t value, bool checkLimits);        
-    void setDutyCycle();
     void onTimer();
+
     uint16_t getTarget() { return target; }
+    bool setTarget(uint16_t value, bool checkLimits);
     uint16_t getCurrent() { return current; }
+    void setCurrent(uint16_t value);
 
     uint16_t getUpperLimit() const { return upperLimit; }
     void setUpperLimit(uint16_t value);
@@ -39,6 +40,7 @@ public:
     static ServoController* last;
 
 protected:
+  void setDutyCycle();
 
     RP2040_PWM* pwm;
     int         lastValue;
