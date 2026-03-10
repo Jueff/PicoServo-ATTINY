@@ -1,3 +1,14 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+ * The ServoController class manages a single servo motor using PWM on a specified pin.
+ * It handles target and current positions, speed limiting, minimum and maximum bounds,
+ * and optional inversion. The class supports smooth movement towards target positions,
+ * disabling the PWM signal, and manages multiple instances via a linked list.
+ * Servo positions are updated periodically using a timer callback.
+ */
+
 #include "ServoController.h"
 
 ServoController* ServoController::first = NULL;
@@ -40,7 +51,7 @@ void ServoController::setCurrent(uint16_t value)
   target = current;
 }
 
-bool ServoController::setTarget(uint16_t value, bool checkLimits)
+bool ServoController::setTarget(uint16_t value, bool checkLimits, bool immediateMove)
 {
   if (value<1) return false;            // MLL sends 0 for pattern after restart - ignore that values(workaround until store_status for pattern works with MLL)
   if (value == current)
@@ -50,7 +61,7 @@ bool ServoController::setTarget(uint16_t value, bool checkLimits)
   }
   if (disabled)         // re-enable PWM
   {
-    Serial.printf("enable servo for pin %d\r\n", pin);
+    Serial.printf("P%d : enable servo\n", pin);
     disabled = false;
   }
 
@@ -78,7 +89,16 @@ bool ServoController::setTarget(uint16_t value, bool checkLimits)
     else if (value < min) target = min;
     else target = value;
   }
-  Serial.printf("new value for pin %d = %d\r\n", pin, target);
+  if (immediateMove)
+  {
+    current = target;
+    pwm->setPWM_Int(pin, 50, current);
+    Serial.printf("P%d : immediate move to %d\n", pin, target);
+  }
+  else
+  {
+    Serial.printf("P%d : new target value %d\n", pin, target);
+  }
   return true;
 }
   
@@ -105,15 +125,14 @@ void ServoController::setDutyCycle()
     current += diff;
   }
   pwm->setPWM_Int(pin, 50, current);
-  //Serial.printf("duty cycle for Pin %d target %d current %d \r\n", pin, target, current);
-  //Serial.printf("%d %d\n", millis(), current);
+  //Serial.printf("P%d : duty cycle target %d current %d\n", pin, target, current);
 }
 
 void ServoController::disable()
 {
   if (!disabled)
   {
-    Serial.printf("disable servo for pin %d\r\n", pin);
+    Serial.printf("P%d : disable servo\n", pin);
     pwm->setPWM_Int(pin, 50, INT_MAX);
     disabled = true;
   }

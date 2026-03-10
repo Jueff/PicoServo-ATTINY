@@ -1,3 +1,9 @@
+/*
+ * SPDX-FileCopyrightText: 2025-2026 Juergen Winkler <MobaLedLib@gmx.at>
+ * SPDX-License-Identifier: CC-BY-NC-4.0
+ *
+*/
+
 #pragma once
 #include <Arduino.h>
 #include "RP2040_PWM.h"
@@ -10,7 +16,7 @@ public:
     void onTimer();
 
     uint16_t getTarget() { return target; }
-    bool setTarget(uint16_t value, bool checkLimits);
+    bool setTarget(uint16_t value, bool checkLimits = true, bool immediate = false);
     uint16_t getCurrent() { return current; }
     void setCurrent(uint16_t value);
 
