@@ -22,12 +22,14 @@ const uint STATUSLED_PIN = 13;
 
 const uint NUM_LEDS_TO_EMULATE = 2;
 const uint NUM_LEDS_TO_SKIP = NUM_LEDS_TO_EMULATE - 1;
-const char* bootMessage = "MobaLedLib Pico 6x-Servo ATTiny V0.1";
+const uint NUM_SERVO_CONTROLLERS = 2;
+const char* bootMessage = "MobaLedLib Pico 6x-Servo ATTiny V0.3";
 
 #include "LEDReceiver.h"
 #include "ServoConfigurator.h" 
 
 bool dataChanged = false;
+bool isInSetup = false;
 LEDReceiver* pLEDReceiver;
 #define NUM_LEDS 20  
 CRGB leds[NUM_LEDS];           // Define the array of leds
@@ -35,7 +37,7 @@ CRGB leds[NUM_LEDS];           // Define the array of leds
 uint8_t lastSignal = 0xff;
 uint8_t ledData[NUM_LEDS_TO_EMULATE * 3];
 
-ServoConfigurator* pConfigurator[2];
+ServoConfigurator* pConfigurator[NUM_SERVO_CONTROLLERS];
 
 #define SECTORS_TO_USE 4
 using namespace PicoFlashStorage;
@@ -68,7 +70,7 @@ void turnInputsOff()
   {
     MobaLedLib.Set_Input(HB_INPUT + i, 0);
   }
-  lastSignal = -1;
+  lastSignal = 0xff;
   MobaLedLib.Update();
 }
 
@@ -96,13 +98,11 @@ void setup()
   // only enable for debugging purpose to see trace output of boot code
   // while (!Serial) {}
   Serial.println(bootMessage);
-
  
   for (int i = 0; i < 30; i++)
   {
     pinMode(i, INPUT);
   }
-
 
   Serial.println("Initialize LED Receiver");
   pLEDReceiver = new LEDReceiver(&ledData[0], NUM_LEDS_TO_EMULATE, NUM_LEDS_TO_SKIP, DATA_IN_PIN, DATA_OUT_PIN);
@@ -117,8 +117,6 @@ void setup()
 
   Serial.println("Initialize servos");
   setupServos();
-
-  //multicore_launch_core1(core1_entry);
 }
 
 void setupServos()
@@ -130,44 +128,58 @@ void setupServos()
     ShowCriticalError("can't use flash storage");
   }
 
-  uint8_t pins1[3] = { 0, 1, 2 };
-  pConfigurator[0] = new ServoConfigurator(pStorage, 0, 3, pins1);
-  uint8_t pins2[3] = { 3, 4, 5 };
-  pConfigurator[1] = new ServoConfigurator(pStorage, 3, 3, pins2);
-}
-
-void core1_entry()
-{
+  for (int i = 0; i < NUM_SERVO_CONTROLLERS; i++)
+  {
+    uint8_t pins[3] = { (uint8_t)(0+i*3), (uint8_t)(1 + i * 3), (uint8_t)(2 + i * 3) };
+    pConfigurator[i] = new ServoConfigurator(pStorage, 0, 3, pins);
+  }
 }
 
 void loop()
 {
   pLEDReceiver->loop();
 
-  for (int i = 0; i < 2; i++)
+  for (int i = 0; i < NUM_SERVO_CONTROLLERS; i++)
   {
     pConfigurator[i]->process(ledData + i*3);
   }
-  bool inConfiguration = false;
-  for (int i = 0; i < 2; i++)
+
+  bool inSetupNow = false;
+  for (int i = 0; i < NUM_SERVO_CONTROLLERS; i++)
   {
     if (pConfigurator[i]->isInSetup())
     {
+      auto hue = (uint8_t)((1.0 - pConfigurator[i]->getPercentage()) * 160);  // 0% = 160 (Blau), 100% = 0 (rot)
+      inSetupNow = true;
+      if (!isInSetup)
+      {
+        Serial.println("Enter setup mode");
+        isInSetup = true;
+        turnInputsOff();
+      }
       // use fastled to set the HSV value of led[0]
       CHSV HSV;
-      HSV.hue = (uint8_t)((1.0 - pConfigurator[i]->getPercentage()) * 160);  // 0% = 160 (Blau), 100% = 0 (rot)
-      Serial.printf("Servo %d in setup mode, position = %f hue = %d\r\n", i, pConfigurator[i]->getPercentage(), HSV.hue);
-      HSV.sat = 255;
-      HSV.val = 100;
-      leds[0] = HSV;
-      inConfiguration = true;
-      turnInputsOff();
+      if (HSV.hue != hue)
+      {
+        HSV.hue = hue;
+        Serial.printf("Servo %d in setup mode, position = %f hue = %d\r\n", i, pConfigurator[i]->getPercentage(), HSV.hue);
+        HSV.sat = 255;
+        HSV.val = 100;
+        leds[0] = HSV;
+      }
       break;
     }
   }
-  if (!inConfiguration) setSignal(pLEDReceiver->getState());
-    MobaLedLib.Update();
-    FastLED.show();                       // Show the LEDs (send the leds[] array to the LED stripe)
+  if (isInSetup && !inSetupNow)
+  {
+    Serial.println("Leave setup mode");
+    isInSetup = false;
+    leds[0].setRGB(0, 0, 0);
+    turnInputsOff();
+  }
+  if (!isInSetup) setSignal(pLEDReceiver->getState());
+  MobaLedLib.Update();
+  FastLED.show();                       // Show the LEDs (send the leds[] array to the LED stripe)
 }
 
 void ShowCriticalError(const char* message)
