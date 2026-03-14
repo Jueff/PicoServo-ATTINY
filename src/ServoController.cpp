@@ -22,7 +22,7 @@ ServoController::ServoController(uint8_t pin, uint16_t min, uint16_t max, uint16
   // 20.000 µs = 20 ms = 0,02 Sekunden
   // 1 / 0,02 s = 50 Hz
 
-  pwm = new RP2040_PWM(pin, 20000, 0);
+  pwm = new RP2040_PWM(pin, 50, 0);
   this->pin = pin;
   this->min = min;
   this->max = max;
