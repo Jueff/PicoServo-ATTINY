@@ -11,6 +11,6 @@ def copy_firmware(source, target, env):
     os.makedirs("./firmware", exist_ok=True)
     uf2_path = str(target[0]).replace(".elf", ".uf2")
     print("Kopiere:", uf2_path)
-    shutil.copy(uf2_path, "./firmware/PicoServo-Tiny-v0.2.uf2")
+    shutil.copy(uf2_path, "./firmware/PicoServo-Tiny-v0.3.uf2")
 
 env.AddPostAction("$BUILD_DIR/firmware.elf", copy_firmware)
