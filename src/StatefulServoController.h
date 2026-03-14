@@ -29,7 +29,7 @@ public:
     bool shouldAutomaticallyDisable()
     {
         if (!isReady() || isMoving() || lastMoveTime == 0) return false;
-        return (millis() - lastMoveTime) > 100;
+        return (millis() - lastMoveTime) > 250;                           // change from 100 to 250, older slow servos need more time to reach the target position
     }
 
     void resetSavePosition()
