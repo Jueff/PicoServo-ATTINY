@@ -30,10 +30,10 @@ using eButtonMode = ServoConfigurator::eButtonMode;
 #define SERVO_MAX_VALUE 220
 #define NO_SERVO_SEL 0xff
 
-#define MIN_SERVO         ( 100*8)  // n * 1/8 [us]   Die Servos haben ganz unterschiedliche PWM Bereiche
-#define MAX_SERVO         (2000*8)  //   "            - SG90 hat den groessten Bereich von 600-2700us
-#define DEF_MIN_SERVO     ( 500*8)  //   "            Default values used if the flash storage values are wrong
-#define DEF_MAX_SERVO     (1000*8)  //   "
+#define MIN_SERVO         ( 500*5)  // [us]/5   Die Servos haben ganz unterschiedliche PWM Bereiche
+#define MAX_SERVO         (2500*5)  //   "      - SG90 hat den groessten Bereich von 600-2700us
+#define DEF_MIN_SERVO     (1000*5)  //   "      Default values used if the EEPROM values are wrong
+#define DEF_MAX_SERVO     (1500*5)  //   "
 
 #define CNG_POS_SLOW          2     // slow change of the position in ReadMinMaxButton() per 20 ms
 #define CNG_POS_FAST        200     // fast   "              "                "
