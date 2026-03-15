@@ -7,14 +7,23 @@
  *  It is part of the MobaLedLib project. It receives LED data, controls
  *  up to 6 servos (in two groups), and provides visual feedback via the onboard RGB LED
  *  Servo configuration and limits are stored in flash memory. The solution supports
- *  interactive setup and status indication using FastLED and MobaLedLib.
+ *  interactive setup and status indication using FastLED and MobaLedLib. 
  */
 
 #include "pico/multicore.h"
 #include "MobaLedLib.h"
 #include "PicoFlashStorage.h"
 
-// cool tool: https://godbolt.org/
+ // stringification helpers: convert numeric macro to string
+#ifndef STRINGIFY2
+#define STRINGIFY2(x) #x
+#define STRINGIFY(x) STRINGIFY2(x)
+#endif
+
+// Fallback, falls APP_VERSION nicht gesetzt ist
+#ifndef APP_VERSION
+#define APP_VERSION 0.0
+#endif
 
 const uint DATA_IN_PIN = 15;
 const uint DATA_OUT_PIN = 14;
@@ -23,7 +32,7 @@ const uint STATUSLED_PIN = 13;
 const uint NUM_LEDS_TO_EMULATE = 2;
 const uint NUM_LEDS_TO_SKIP = NUM_LEDS_TO_EMULATE - 1;
 const uint NUM_SERVO_CONTROLLERS = 2;
-const char* bootMessage = "MobaLedLib Pico 6x-Servo ATTiny V0.3";
+const char* bootMessage = "MobaLedLib Pico 6x-Servo ATTiny V" STRINGIFY(APP_VERSION);
 
 #include "LEDReceiver.h"
 #include "ServoConfigurator.h" 
