@@ -1,1 +1,1 @@
-pio run -t upload -e picoServoTiny --upload-port COM15
+pio run -t upload -e PicoServo-Tiny --upload-port COM15

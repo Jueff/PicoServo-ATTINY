@@ -1,0 +1,75 @@
+Business Source License 1.1
+
+Parameters
+================================================================================
+
+Licensor:           Jürgen Winkler, Hallein, Austria
+Licensed Work:      PicoServo-ATTINY (incl. referenced WS281xProcessor)
+Additional Use Grant: 
+                    Non-commercial use is permitted free of charge. 
+                    Commercial use is permitted only for internal testing 
+                    purposes or with express written consent from the Licensor.
+Change Date:        31.12.2035
+Change License:     GNU Lesser General Public License v2.1 or later
+
+
+License Text
+================================================================================
+
+Copyright (c) 2026 Jürgen Winkler. All rights reserved.
+
+The Licensor hereby grants you the right to copy, modify, create derivative 
+works, redistribute, and make available the Licensed Work only subject to the 
+terms of this License.
+
+1. Grant of License
+Subject to the terms and conditions of this License, the Licensor hereby grants 
+you a worldwide, royalty-free, non-exclusive, non-transferable license to do 
+the following, for only the purposes allowed by the Additional Use Grant:
+a. Copy and modify the Licensed Work;
+b. Create derivative works of the Licensed Work;
+c. Redistribute and make available the Licensed Work and any derivative works 
+   you create.
+
+2. Restrictions
+You may not use the Licensed Work for any purpose other than those allowed by 
+the Additional Use Grant. If you want to use the Licensed Work for any other 
+purpose, you must obtain a separate commercial license from the Licensor.
+
+3. Change to Change License
+On the Change Date, or in connection with a Change Event (if any) specified in 
+the Parameters, this License shall terminate and the Licensor hereby grants 
+you a license to the Licensed Work under the terms of the Change License. All 
+rights, liberties, and justifications granted by the Change License shall apply.
+
+4. Intellectual Property
+The Licensor retains all ownership and intellectual property rights in the 
+Licensed Work.
+
+5. Notices
+You must include a copy of this License in any copy of the Licensed Work or any 
+derivative work you create and redistribute or make available. You must also 
+include a notice that the Licensed Work is subject to this License and identify 
+the Licensor.
+
+6. Termination
+This License and the rights granted hereunder will terminate immediately if you 
+fail to comply with any of its terms.
+
+7. Disclaimer of Warranty
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED "AS IS" 
+WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT 
+LIMITATION ANY WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, 
+OR NONINFRINGEMENT.
+
+8. Limitation of Liability
+TO THE EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE LICENSOR BE 
+LIABLE TO YOU FOR ANY DAMAGES, INCLUDING WITHOUT LIMITATION ANY DIRECT, INDIRECT, 
+SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT OF OR IN CONNECTION 
+WITH THIS LICENSE OR THE USE OR INABILITY TO USE THE LICENSED WORK.
+
+9. General
+This License shall be governed by the laws of the jurisdiction where the 
+Licensor is located. Any disputes arising out of or in connection with this 
+License shall be subject to the exclusive jurisdiction of the courts of such 
+jurisdiction.
