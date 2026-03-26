@@ -3,7 +3,7 @@ Business Source License 1.1
 Parameters
 ================================================================================
 
-Licensor:           Jürgen Winkler, Hallein, Austria
+Licensor:           Jürgen Winkler
 Licensed Work:      PicoServo-ATTINY (incl. referenced WS281xProcessor)
 Additional Use Grant: 
                     Non-commercial use is permitted free of charge. 
