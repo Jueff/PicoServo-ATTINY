@@ -84,6 +84,23 @@ def perform_copy(version, artifact_path):
         with open(tpl, "r", encoding="utf-8") as f:
             content = f.read()
         content = content.replace("{APP_VERSION}", version)
+        
+        # Read LICENSE.txt and add as "license-text" to JSON
+        license_path = os.path.join(PROJECT_DIR, "LICENSE.txt")
+        if os.path.exists(license_path):
+            try:
+                with open(license_path, "r", encoding="utf-8") as f:
+                    license_text = f.read()
+                # Assuming content is JSON, parse and add license-text
+                import json
+                desc_data = json.loads(content)
+                desc_data["license-text"] = license_text
+                content = json.dumps(desc_data, indent=2, ensure_ascii=False)
+                print(">>> added license-text to .desc")
+            except Exception as e:
+                print(">>> Error reading LICENSE.txt:", e)
+        else:
+            print(">>> LICENSE.txt not found")
     else:
         content = "Name: {}\nVersion: {}\n".format(PIOENV, version)
         print(">>> no desc template found; creating minimal .desc")
@@ -93,13 +110,12 @@ def perform_copy(version, artifact_path):
         f.write(content)
     print(">>> wrote desc to", dest_desc)
 
-    # create zip (use .uf2.zip name regardless of actual extension)
-    zip_path = os.path.join(PROJECT_DIR, "firmware", base + ".uf2.zip")
+    # create zip (use .zip name regardless of actual extension)
+    zip_path = os.path.join(PROJECT_DIR, "firmware", base + ".zip")
     try:
         with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             zf.write(dest_file, arcname=os.path.basename(dest_file))
             zf.write(dest_desc, arcname=os.path.basename(dest_desc))
-            zf.write("LICENSE.txt", arcname=os.path.basename(os.path.join(PROJECT_DIR, "LICENSE.txt")))
         print(">>> created zip", zip_path)
     except Exception as e:
         print(">>> Error creating zip:", e)

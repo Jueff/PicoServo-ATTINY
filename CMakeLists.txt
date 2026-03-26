@@ -3,11 +3,11 @@
 
    add_custom_target(
        build_with_cmd
-       COMMAND ${CMAKE_COMMAND} -E echo "Starte compile.cmd..."
+       COMMAND ${CMAKE_COMMAND} -E echo "starting compile.cmd..."
        COMMAND compile.cmd
        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
    )
 
-   # Dummy-Hauptziel, das von build_with_cmd abhängt
+   # Dummy-target, das von build_with_cmd abhängt
    add_custom_target(main ALL)
    add_dependencies(main build_with_cmd)
