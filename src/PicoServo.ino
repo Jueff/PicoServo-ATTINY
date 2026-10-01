@@ -61,7 +61,7 @@ uint8_t logState = 0;
 #define MLLAPP_LOG(level,...) if (LogLevel>=level) Serial.printf(__VA_ARGS__);
 
 // flash storage
-#define SECTORS_TO_USE 4
+#define SECTORS_TO_USE 8
 using namespace PicoFlashStorage;
 FlashStorage* pStorage;
 
@@ -149,37 +149,32 @@ void setup()
     FlashStorage::LogLevel = 0;
     LogLevel = 0;
   }
-  MLLAPP_LOG(1, bootMessage);
-  MLLAPP_LOG(3, "Initialize LED Receiver");
+  MLLAPP_LOG(1, "%s\n", bootMessage);
+
+  turnInputsOff();
+
+  MLLAPP_LOG(3, "Initialize LED Receiver\n");
   pLEDReceiver = new LEDReceiver(&ledData[0], NUM_LEDS_TO_EMULATE, NUM_LEDS_TO_SKIP, DATA_IN_PIN, DATA_OUT_PIN);
   pLEDReceiver->setRepeaterLEDColor(0, 0, 0);
 
-  MLLAPP_LOG(3, "Initialize FastLED");
+  MLLAPP_LOG(3, "Initialize FastLED\n");
 
   FastLED.addLeds<NEOPIXEL, STATUSLED_PIN>(leds, NUM_LEDS); // Initialize the FastLED library
   FastLED.addLeds<NEOPIXEL, 16>(leds, NUM_LEDS); // Initialize the FastLED library
   FastLED.setDither(DISABLE_DITHER);       // avoid sending slightly modified brightness values
 
-  turnInputsOff();
-
-/*  digitalWrite(2, HIGH);
-  pwm = new RP2040_PWM(2, 50, INT_MAX);
-  digitalWrite(2, HIGH);
-  /*pwm->setPWM_Int(2, 50, INT_MAX);
-  pwm->setPWM_Int(2, 50, INT_MAX);
-  pwm->setPWM_Int(2, 50, INT_MAX);*/
-  
-  MLLAPP_LOG(3, "Initialize servos");
+  MLLAPP_LOG(3, "Initialize servos\n");
 
   uint16_t baseSectorNumber = (PICO_FLASH_SIZE_BYTES / FLASH_SECTOR_SIZE) - SECTORS_TO_USE;
   pStorage = new FlashStorage(baseSectorNumber, SECTORS_TO_USE, (uint8_t*)"MLLSRS10");
   if (!pStorage->isValid())
   {
-    showCriticalError("can't use flash storage");
+    showCriticalError("can't use flash storage\n");
   }
-  
+
   setupServos(pStorage, 0);
-  MLLAPP_LOG(3, "Activating buttons");
+
+  MLLAPP_LOG(3, "Activating buttons\n");
   ButtonConfig* buttonConfig = ButtonConfig::getSystemButtonConfig();
   buttonConfig->setEventHandler(handleButton);
   buttonConfig->setFeature(ButtonConfig::kFeatureLongPress);
@@ -202,8 +197,8 @@ void loop()
   {
     pLEDReceiver->DebugOutputLedData();
   }
-
   updateServos(0);
+
   if (!isInSetup) 
   {
     setSignal(pLEDReceiver->getState());
@@ -257,7 +252,7 @@ void updateServos(uint8_t ledOffset)
   }
   if (isInSetup && !inSetupNow)
   {
-    MLLAPP_LOG(2, "Leave setup mode");
+    MLLAPP_LOG(2, "Leave setup mode\n");
     isInSetup = false;
     leds[0].setRGB(0, 0, 0);
     turnInputsOff();
