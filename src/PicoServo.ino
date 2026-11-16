@@ -17,7 +17,6 @@
 #include <AceButton.h>  
 #include <Arduino.h>
 #include <climits> 
-#include "RP2040_PWM.h"
 
 using namespace ace_button;
 
@@ -68,9 +67,12 @@ FlashStorage* pStorage;
 // Status signal members and defines
 uint8_t lastSignal = 0xff;
 const uint8_t HB_INPUT = 0;
-const uint8_t MAX_SIGNAL = 4;
+const uint8_t MAX_SIGNAL = 5;
+const uint8_t STARTUP_SIGNAL = 5;
+const uint32_t STARTUP_SIGNAL_DURATION = 2400;  // [ms]
 const uint8_t MAX_BRIGHT = 20;
 CHSV HSV;
+uint32_t startupSignalStart = 0;
 
 // MobaLedLib
 CRGB leds[NUM_LEDS];
@@ -83,6 +85,9 @@ MobaLedLib_Configuration()
   // APatternT1(0, 193, HB_INPUT + 3, 1, 5, MAX_BRIGHT, 0, PF_EASEINOUT, 1 Sec, 1)  // green fading
   ConstRGB(0, HB_INPUT + 3, 0, 0, 0, 0, 0, 0)                                       // led off
   PatternT4(0, _NStru(C1, 4, 1), HB_INPUT + 4, _Cx2LedCnt(C1), 0, 255, 0, 0, 24 ms, 74 ms, 24 ms, 512 ms, _Cx2P_DBLFL(C1))  // red warning flashlight
+    //PatternT2(0, 64, HB_INPUT + 5, 3, 0, MAX_BRIGHT, 0, PM_NORMAL, 400, 100, 66, 32, 0, 0) // blink green red green
+    //PatternT2(0, 64, HB_INPUT + 5, 3, 0, MAX_BRIGHT, 0, PM_NORMAL, 400, 100, 66, 33, 0, 0) // blink green purple green
+    PatternT2(0, 64, HB_INPUT + 5, 3, 0, MAX_BRIGHT, 0, PM_NORMAL, 400, 100, 2, 33, 0, 0) // blink green blue green
   EndCfg // End of the configuration
 };
 MobaLedLib_Create(leds); // Define the MobaLedLib instance
@@ -105,6 +110,7 @@ void setSignal(LEDReceiver::State signal)
     Offline     = 2,
     Online      = 3,
     FlashError  = 4,
+    Startup     = 5
   */
   uint8_t newSignal = (uint8_t)signal;
   if (newSignal > MAX_SIGNAL) return;
@@ -114,8 +120,6 @@ void setSignal(LEDReceiver::State signal)
   MLLAPP_LOG(3, "Set signal %d\r\n", newSignal);
   MobaLedLib.Set_Input(HB_INPUT + newSignal, 1);
 }
-
-RP2040_PWM* pwm;
 
 void setup()
 {
@@ -178,6 +182,10 @@ void setup()
   ButtonConfig* buttonConfig = ButtonConfig::getSystemButtonConfig();
   buttonConfig->setEventHandler(handleButton);
   buttonConfig->setFeature(ButtonConfig::kFeatureLongPress);
+
+  MLLAPP_LOG(3, "Show startup signal\n");
+  setSignal((LEDReceiver::State)STARTUP_SIGNAL);
+  startupSignalStart = millis() + STARTUP_SIGNAL_DURATION;
 }
 
 void setupServos(FlashStorage* pStorage, uint8_t basePin)
@@ -201,7 +209,19 @@ void loop()
 
   if (!isInSetup) 
   {
-    setSignal(pLEDReceiver->getState());
+    if (startupSignalStart > 0)
+    {
+      if (millis() > startupSignalStart)
+      {
+        startupSignalStart = 0;
+        turnInputsOff();
+        MLLAPP_LOG(3, "Startup signal finished\n");
+      }
+    }
+    else
+    {
+      setSignal(pLEDReceiver->getState());
+    }
   }
   MobaLedLib.Update();
   FastLED.show();                       // Show the LEDs (send the leds[] array to the LED stripe)
