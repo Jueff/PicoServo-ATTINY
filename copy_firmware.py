@@ -136,6 +136,8 @@ def copy_firmware(source, target, env):
 # register post actions on multiple targets to increase chance of execution
 try:
     env.AddPostAction("upload", copy_firmware)
+    # also run after a normal build (pio run), not only on upload
+    env.AddPostAction("buildprog", copy_firmware)
     print(">>> copy_firmware.py loaded; post actions registered")
 except Exception as e:
     print(">>> Warning: failed to register some post actions:", e)
