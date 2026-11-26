@@ -12,7 +12,7 @@
 // Ein Neustart beendet es ebenfalls (der Zustand liegt nur im RAM).
 //
 // --- Typ und Version (MLLINFO) ---------------------------------------------------------
-//   ~MLLINFO      Antwort: ~MLLINFO type=<MLL_FW_TYPE> ver=<APP_VERSION>
+//   ~MLLINFO      Antwort: ~MLLINFO type=<MLL_FW_TYPE> platform=<MLL_PLATFORM> ver=<APP_VERSION>
 // MLL_FW_TYPE wird vor dem Include in der jeweiligen .ino definiert (z.B. PICOSERVO, PICOSOUND, PICO2X3).
 //
 // ---------------------------------------------------------------------------------------
@@ -29,6 +29,11 @@
 #define MLL_FW_TYPE "UNDEFINED"
 #endif
 
+// Plattform laut .desc (alle Module basieren auf der PicoSoundServo 512 Platine).
+#ifndef MLL_PLATFORM
+#define MLL_PLATFORM "MLL512V1"
+#endif
+
 //----------------------------------------
 static void MllCommunicationError(const __FlashStringHelper* Reason)
 {
@@ -41,9 +46,9 @@ static void MllCommunicationError(const __FlashStringHelper* Reason)
 //----------------------------------------
 static void MllInfoReply()
 //----------------------------------------
-// Antwort auf '~MLLINFO': "~MLLINFO type=<MLL_FW_TYPE> ver=<APP_VERSION>". Die Lichtmaschinen-Erkennung (webMLL) liest diese Zeile.
+// Antwort auf '~MLLINFO': "~MLLINFO type=<MLL_FW_TYPE> platform=<MLL_PLATFORM> ver=<APP_VERSION>". Die Lichtmaschinen-Erkennung (webMLL) liest diese Zeile.
 {
-  Serial.print(F("~MLLINFO type=" MLL_FW_TYPE " ver="));
+  Serial.print(F("~MLLINFO type=" MLL_FW_TYPE " platform=" MLL_PLATFORM " ver="));
   Serial.println(F(STRINGIFY(APP_VERSION)));
 }
 
